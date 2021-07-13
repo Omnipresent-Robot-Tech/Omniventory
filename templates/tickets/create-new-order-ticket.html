@@ -1,0 +1,80 @@
+{% extends "layout.html" %}
+{% block title %}
+Create a New Product &mdash; Omniventry
+{% endblock %}
+
+{% block section_title %}
+Create a New Product
+{% endblock %}
+
+{% block section_lead %}
+Don't find customers for your product find products for your customers.
+{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="/static/modules/select2/dist/css/select2.min.css">
+{% endblock %}
+
+{% block main %}
+<form method="POST" enctype="multipart/form-data">
+<div class="row">
+    <div class="col-lg-8 col-md-8 col-sm-12 col-xs-12 col-12  ">
+        <div class="card">
+            <div class="card-header">
+                <h4>Order Details</h4>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label>Short Description</label>
+                    <textarea type="text" autofocus name="short_description" class="form-control" required></textarea>
+                </div> 
+                <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 col-12 ">
+                        <div class="form-group">
+                            <label>Product Category</label>
+                            <select class="select2 form-control" id="category_select" name="category" data-size="3" tabindex="1" data-live-search="true" data-style="btn-white" required>
+                                {% for cat in categories %}
+                                    <option value="{{ cat.id }}">{{ cat.category }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 col-12 ">
+                        <div class="form-group">
+                            <label>Product Name</label>
+                            <select class="select2 form-control" id="category_select" name="category" data-size="3" tabindex="2" data-live-search="true" data-style="btn-white" required>
+                                {% for cat in categories %}
+                                    <option value="{{ cat.id }}">{{ cat.category }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group float-right">
+                    <button class="btn btn-danger" type="reset" tabindex="8">Cancel</button>
+                    <button class="btn btn-primary" type="submit" tabindex="7">Confirm Order</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<input class="d-none" value={{current_user.id}} name="user" id="user" type="text"/>
+</form>
+{% endblock %}
+{% block scripts %}
+<script src="/static/modules/select2/dist/js/select2.full.min.js"></script>
+<script>
+    window.onload = function(){
+        $('#category_select').select2({
+            placeholder: "Select at one category",
+            width: '100%',
+            dropdownAutoWidth: true
+        });
+
+        $('.select2-selection').addClass('border-1');
+        $('.select2-selection').css('padding','7px 15px');
+        $('.select2-selection').css('backgroud-color','#fdfdff');
+        $('.select2-selection').css('border-color','#e4e6fc');
+    }
+</script>
+{% endblock %}

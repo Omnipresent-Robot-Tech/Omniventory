@@ -1,0 +1,311 @@
+{% extends "layout.html" %}
+{% block title %}
+Tickets &mdash; Omniventry
+{% endblock %}
+{% block section_title %}
+Tickets
+{% endblock %}
+{% block section_lead %}
+Focus on the solution, not on the problem.
+{% endblock %}
+{% block head %}
+<style>
+  div.ticket-card {
+    background-color: white !important;
+  }
+
+  input.search-bar {
+    border-radius: .25em !important;
+    width: 15rem !important;
+    height: 2rem !important;
+  }
+
+  select.sort-select {
+    border-radius: .25em !important;
+    width: 10rem !important;
+    height: 2rem !important;
+    line-height: 1.2 !important;
+    padding: 5px 5px !important;
+  }
+</style>
+<link rel="stylesheet" href="/static/modules/bootstrap-daterangepicker/daterangepicker.css">
+<link rel="stylesheet" href="/static/modules/select2/dist/css/select2.min.css">
+{% endblock %}
+
+{% block main %}
+<div class="row">
+  <div class="col-12">
+    <div class="card m-0">
+      <div class="card-header">
+        <h4 class="mr-auto">Tickets</h4>
+        <div class="justify-content-end form-inline">
+          <div class="from-group">
+          <select class="form-control sort-select mr-md-2 mr-lg-2 mr-sm-0 mb-md-0 mb-lg-0 mb-sm-3">
+            <label>Sort By: </label>
+            <option selected value="1">Ticket: New &mdash; Old</option>
+            <option value="2">Ticket: Old &mdash; New</option>
+            <option value="5">Title: A &mdash; Z</option>
+            <option value="6">Title: Z &mdash; A</option>
+          </select>
+        </div>
+          <div class="from-group">
+            <input type="text" class="form-control search-bar" placeholder="Search" autocomplete autofocus>
+          </div>
+        </div>
+      </div>
+      <div class="card-body row">
+        <div class="col-md-3 col-lg-3 col-sm-5 mb-4">
+          <div class="form-group">
+            <label>Ticket Category</label>
+            <select class="form-control select2">
+              <option>Order Ticket</option>
+              <option>Item Allocation Ticket</option>
+              <option>Maintenance Ticket</option>
+              <option>Transfer Request Ticket</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Assigned By</label>
+            <select class="form-control select2" data-size="5" data-live-search="true" data-style="btn-white" id="assigned_by">
+              {% for user in users %}
+              <option value="{{user.id}}">{{user.fname | title if user.fname is not none else ''}} {{user.lname | title if user.lname is not none else ''}}
+                {% if current_user.id==user.id %}
+                  &nbsp;<small>(You)</small>
+                {% endif %}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Assigned To</label>
+            <select class="form-control select2" data-size="5" data-live-search="true" data-style="btn-white" id="assigned_to">
+              {% for user in users %}
+              <option value="{{user.id}}">{{user.fname | title if user.fname is not none else ''}} {{user.lname | title if user.lname is not none else ''}}
+                {% if current_user.id==user.id %}
+                  &nbsp;<small>(You)</small>
+                {% endif %}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Priority</label>
+            <div class="selectgroup selectgroup-pills w-100">
+              <label class="selectgroup-item">
+                <input type="radio" name="value" value="all" class="selectgroup-input" checked="">
+                <span class="selectgroup-button">All</span>
+              </label>
+              <label class="selectgroup-item">
+                <input type="radio" name="value" value="urgent" class="selectgroup-input">
+                <span class="selectgroup-button">Urgent</span>
+              </label>
+              <label class="selectgroup-item">
+                <input type="radio" name="value" value="high" class="selectgroup-input">
+                <span class="selectgroup-button">High</span>
+              </label>
+              <label class="selectgroup-item">
+                <input type="radio" name="value" value="low" class="selectgroup-input">
+                <span class="selectgroup-button">Low</span>
+              </label>
+            </div>
+            <!-- <select class="form-control">
+              <option>Urgent</option>
+              <option>High</option>
+              <option>Low</option>
+            </select> -->
+          </div>
+          <div class="form-group">
+            <label>In Between</label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <div class="input-group-text">
+                  <i class="fas fa-calendar"></i>
+                </div>
+              </div>
+              <input type="text" class="form-control daterange-cus">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Current Status</label>
+            <div class="selectgroup selectgroup-multiple w-100">
+              <label class="selectgroup-item">
+                <input type="checkbox" name="value[]" multiple value="open" class="selectgroup-input" checked="">
+                <span class="selectgroup-button">Open</span>
+              </label>
+              <label class="selectgroup-item">
+                <input type="checkbox" name="value[]" multiple value="closed" class="selectgroup-input">
+                <span class="selectgroup-button">Closed</span>
+              </label>
+            </div>
+          </div>
+          <div class="d-inline">
+            <button class="btn btn-light" type="button">Cancel</button>
+            <button class="btn btn-primary" type="button">Apply</button>
+          </div>
+        </div>
+        <div class="col-md-9 col-lg-9 col-sm-7">
+          <div class="card ticket-card border-info border-left border-5 shadow-sm rounded mb-2">
+            <div class="card-body">
+              <div class="d-flex flex-row">
+                <h5 class="mr-auto text-truncate">Ticket is Test Ticket <span class="h5 text-secondary">#203</span></h5>  
+                
+                <span class="text-success"><i class="fas fa-lock-open"></i></span>
+              </div>
+              <div class="d-inline-block">
+                <b class="h6">Kevin Patel</b> <span class="text-secondary bullet"></span> <span class="text-mutted">
+                  12/05/2021 </span> <span class="text-secondary bullet"></span> <span
+                  class="text-danger">Urgent</span><span class="text-secondary bullet"></span><span
+                  class="badge badge-warning">Due Today</span><span class="text-secondary bullet"></span>
+                  <figure class="avatar mr-2 avatar-sm">
+                    <img alt="image" src="/static/img/avatar/avatar-5.png" class="rounded-circle" data-toggle="tooltip" title="Wildan Ahdian">
+                  </figure>
+                  <figure class="avatar mr-2 avatar-sm">
+                    <img alt="image" src="/static/img/avatar/avatar-3.png" class="rounded-circle" width="35" data-toggle="tooltip" title="Wildan Ahdian">
+                  </figure>
+                  <figure class="avatar mr-2 avatar-sm">
+                    <img alt="image" src="/static/img/avatar/avatar-2.png" class="rounded-circle" width="35" data-toggle="tooltip" title="Wildan Ahdian">
+                  </figure>
+              </div>
+            </div>
+          </div>
+          <div class="card  ticket-card border-warning border-left border-5 shadow-sm rounded mb-2">
+            <div class="card-body">
+              <div class="d-flex flex-row">
+                <h5 class="mr-auto text-truncate">12345678901234567890123456789012345678901234567890 <span class="h5 text-secondary">#201</span></h5>
+                <span class="text-danger"><i class="fas fa-lock"></i></span>
+              </div>
+              <div class="d-inline-block">
+                <b class="h6">Kevin Patel</b> <span class="text-secondary bullet"></span> <span class="text-mutted">
+                  12/05/2021 </span> <span class="text-secondary bullet"></span> <span
+                  class="text-dark">High</span><span class=" text-secondary bullet"></span>
+                  <figure class="avatar mr-2 avatar-sm">
+                    <img alt="image" src="/static/img/avatar/avatar-5.png" class="rounded-circle" data-toggle="tooltip" title="Wildan Ahdian">
+                  </figure>
+                  <figure class="avatar mr-2 avatar-sm">
+                    <img alt="image" src="/static/img/avatar/avatar-3.png" class="rounded-circle" width="35" data-toggle="tooltip" title="Wildan Ahdian">
+                  </figure>
+              </div>
+            </div>
+          </div>
+          <div class="card  ticket-card border-danger border-left border-5 shadow-sm rounded mb-2">
+            <div class="card-body">
+              <div class="d-flex flex-row">
+                <h5 class="mr-auto">Ticket is Test Ticket <span class="h5 text-secondary">#101</span></h5>  
+                
+                <span class="text-success"><i class="fas fa-lock-open"></i></span>
+              </div>
+              <div class="d-inline-block">
+                <b class="h6">Kevin Patel</b> <span class="text-secondary bullet"></span> <span class="text-mutted">
+                  12/05/2021 </span> <span class="text-secondary bullet"></span> <span
+                  class="text-secondary">Low</span><span class=" text-secondary bullet"></span><span
+                  class="badge badge-warning">Due Today</span>
+              </div>
+            </div>
+          </div>
+          <div class="card ticket-card border-success border-left border-5 shadow-sm rounded mb-2">
+            <div class="card-body">
+              <div class="d-flex flex-row">
+                <h5 class="mr-auto">Ticket is Test Ticket <span class="h5 text-secondary">#231</span></h5>  
+                
+                <span class="text-success"><i class="fas fa-lock-open"></i></span>
+              </div>
+              <div class="d-inline-block">
+                <b class="h6">Kevin Patel</b> <span class="text-secondary bullet"></span> <span class="text-mutted">
+                  12/05/2021 </span> <span class="text-secondary bullet"></span> <span
+                  class="text-danger">Urgent</span><span class=" text-secondary bullet"></span><span
+                  class="badge badge-danger">Overdue</span><span class="text-secondary bullet"></span>
+                  <figure class="avatar mr-2 avatar-sm">
+                    <img alt="image" src="/static/img/avatar/avatar-5.png" class="rounded-circle" data-toggle="tooltip" title="Wildan Ahdian">
+                  </figure>
+                  <figure class="avatar mr-2 avatar-sm">
+                    <img alt="image" src="/static/img/avatar/avatar-3.png" class="rounded-circle" width="35" data-toggle="tooltip" title="Wildan Ahdian">
+                  </figure>
+              </div>
+            </div>
+          </div>
+          <div class="card ticket-card border-primary border-left border-5 shadow-sm rounded mb-2">
+            <div class="card-body">
+              <div class="d-flex flex-row">
+                <h5 class="mr-auto">Ticket is Test Ticket <span class="h5 text-secondary">#21</span></h5>  
+                
+                <span class="text-danger"><i class="fas fa-lock"></i></span>
+              </div>
+              <div class="d-inline-block">
+                <b class="h6">Kevin Patel</b> <span class="text-secondary bullet"></span> <span class="text-mutted">
+                  12/05/2021 </span> <span class="text-secondary bullet"></span> <span
+                  class="text-danger">Urgent</span><span class=" text-secondary bullet"></span>
+                  <figure class="avatar mr-2 avatar-sm">
+                    <img alt="image" src="/static/img/avatar/avatar-5.png" class="rounded-circle" data-toggle="tooltip" title="Wildan Ahdian">
+                  </figure>
+              </div>
+            </div>
+          </div>
+          <div class="card ticket-card border-secondary border-left border-5 shadow-sm rounded mb-2">
+            <div class="card-body">
+              <div class="d-flex flex-row">
+                <h5 class="mr-auto">Ticket is Test Ticket <span class="h5 text-secondary">#1</span></h5>  
+                
+                <span class="text-success"><i class="fas fa-lock-open"></i></span>
+              </div>
+              <div class="d-inline-block">
+                <b class="h6">Kevin Patel</b> <span class="text-secondary bullet"></span> <span class="text-mutted">
+                  12/05/2021 </span> <span class="text-secondary bullet"></span> <span
+                  class="text-danger">Urgent</span><span class=" text-secondary bullet"></span><span
+                  class="badge badge-success">Due On 14/05/2021</span><span class="text-secondary bullet"></span>
+                  <figure class="avatar mr-2 avatar-sm">
+                    <img alt="image" src="/static/img/avatar/avatar-5.png" class="rounded-circle" data-toggle="tooltip" title="Wildan Ahdian">
+                  </figure>
+                  <figure class="avatar mr-2 avatar-sm">
+                    <img alt="image" src="/static/img/avatar/avatar-3.png" class="rounded-circle" width="35" data-toggle="tooltip" title="Wildan Ahdian">
+                  </figure>
+              </div>
+            </div>
+          </div>
+          <div class="d-flex justify-content-end">
+              <nav aria-label="...">
+                <ul class="pagination">
+                  <li class="page-item disabled">
+                    <a class="page-link" href="#" tabindex="-1">Previous</a>
+                  </li>
+                  <li class="page-item active">
+                    <a class="page-link" href="#">1 <span class="sr-only">(current)</span></a>
+                  </li>
+                  <li class="page-item disabled">
+                    <a class="page-link" href="#">2</a>
+                  </li>
+                  <li class="page-item disabled">
+                    <a class="page-link" href="#">3</a>
+                  </li>
+                  <li class="page-item disabled">
+                    <a class="page-link" href="#">Next</a>
+                  </li>
+                </ul>
+              </nav>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="/static/modules/bootstrap-daterangepicker/daterangepicker.js"></script>
+<script src="/static/modules/select2/dist/js/select2.full.min.js"></script>
+<script src="/static/js/page/forms-advanced-forms.js"></script>
+<script>
+    $(document).ready(function(){
+      $('#assigned_to').select2({
+        placeholder: 'Select an Assignee'
+      });
+      $('#assigned_by').select2({
+        placeholder: 'Select an Assigner'
+      });
+      $('.select2-selection').addClass('border-1');
+      $('.select2-selection').css('padding','7px 15px');
+      $('.select2-selection').css('backgroud-color','#fdfdff');
+      $('.select2-selection').css('border-color','#e4e6fc');
+      $('#assigned_by').val('').trigger('change');
+      $('#assigned_to').val('').trigger('change');
+    });
+</script>
+{% endblock %}

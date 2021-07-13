@@ -1,0 +1,163 @@
+{% extends "layout.html" %}
+{% block title %}
+Create a New Product &mdash; Omniventry
+{% endblock %}
+
+{% block section_title %}
+Create a New Product
+{% endblock %}
+
+{% block section_lead %}
+Don't find customers for your product find products for your customers.
+{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="/static/modules/summernote/summernote-bs4.css">
+<link rel="stylesheet" href="/static/modules/select2/dist/css/select2.min.css">
+<style>
+    .thumbnail {
+        height: 100px;
+        margin: -2px 10px 10px 10px;
+    }
+
+    .img-card-footer{
+        overflow-y: scroll;
+        max-height: 500px;
+    }
+
+</style>
+{% endblock %}
+
+{% block main %}
+<form method="POST" enctype="multipart/form-data">
+<div class="row">
+    <div class="col-lg-8 col-md-8 col-sm-12 col-xs-12 col-12  ">
+        <div class="card">
+            <div class="card-header">
+                <h4>Product Description</h4>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label>Product Name</label>
+                    <input type="text" class="form-control" name="name" required autofocus>
+                </div>
+                <div class="form-group">
+                    <label>Short Description</label>
+                    <textarea type="text" tabindex="1" name="short_description" class="form-control" required></textarea>
+                  </div> 
+                <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 col-12 ">
+                        <div class="form-group">
+                            <label>Product Category</label>
+                            <select class="select2 form-control" id="category_select" name="category" data-size="3" tabindex="2" data-live-search="true" data-style="btn-white" required>
+                                {% for cat in categories %}
+                                    <option value="{{ cat.id }}">{{ cat.category }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 col-12 ">
+                        <div class="form-group">
+                            <label>Critical Limit</label>
+                            <input class="form-control qty-validation-check" type="number" value="1" min="1" step="1" name="critical_limit" id="critical_limit" tabindex="3" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label>Vendor's Name</label>
+                            <input class="form-control" type="text" name="vendor_name" tabindex="4">
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 col-12 ">
+                        <div class="form-group">
+                            <label>Vendor's Mobile Number</label>
+                            <input class="form-control" type="phone" name="vendor_phone" tabindex="5">
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 col-12 ">
+                        <div class="form-group">
+                            <label>Vendor's Email</label>
+                            <input class="form-control" type="email" name="vendor_email" tabindex="6">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Full Description</label>
+                    <textarea class="summernote-product" name="description" tabindex="7"></textarea>
+                </div>
+                <div class="form-group float-right">
+                    <button class="btn btn-danger" type="reset" tabindex="8">Cancel</button>
+                    <button class="btn btn-primary" type="submit" tabindex="7">Create Product</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12 col-12 ">
+        <div class="card">
+            <div class="card-header">
+                <h4>Insert Images</h4>
+            </div>
+            <div class="card-body">
+                <div id="image-preview" class="image-preview w-100">
+                    <label for="image-upload" id="image-label">Choose File(s)</label>
+                    <input type="file" name="images[]" id="image-upload" accept="image/*" multiple="multiple" />
+                </div>
+            </div>
+            <div class="card-footer img-card-footer" id="img-card-footer"></div>
+        </div>
+    </div>
+</div>
+<input class="d-none" value={{current_user.id}} name="user" id="user" type="text"/>
+</form>
+{% endblock %}
+{% block scripts %}
+<script src="/static/modules/summernote/summernote-bs4.js"></script>
+<script src="/static/modules/select2/dist/js/select2.full.min.js"></script>
+<script>
+    window.onload = function(){
+
+        $('#category_select').select2({
+            placeholder: "Select at one category",
+            width: '100%',
+            dropdownAutoWidth: true
+        });
+
+        $('.select2-selection').addClass('border-1');
+        $('.select2-selection').css('padding','7px 15px');
+        $('.select2-selection').css('backgroud-color','#fdfdff');
+        $('.select2-selection').css('border-color','#e4e6fc');
+
+        if (window.File && window.FileList && window.FileReader) {
+            var filesInput = document.getElementById("image-upload");
+            filesInput.addEventListener("change", function(event) {
+                var files = event.target.files; //FileList object
+                var output = document.getElementById("img-card-footer");
+                output.innerHTML="";
+                for (var i = 0; i < files.length; i++) {
+                    var file = files[i];
+                    //Only pics
+                    if (!file.type.match('image'))
+                        continue;
+                    var picReader = new FileReader();
+                    picReader.addEventListener("load", function(event) {
+                        var picFile = event.target;
+                        var div = document.createElement("div");
+                        div.innerHTML = "<img class='thumbnail' src='" + picFile.result + "'" +
+                            "title='" + picReader.name + "'/>";
+                        output.insertBefore(div, null);
+                    });
+                    //Read the image
+                    picReader.readAsDataURL(file);
+                }
+            });
+        } else {
+            console.log("Your browser does not support File API");
+        }
+    }
+</script>
+{% endblock %}

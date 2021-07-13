@@ -1,0 +1,126 @@
+{% extends "layout.html" %}
+{% block title %}
+Users &mdash; Omniventry
+{% endblock %}
+
+{% block section_title %}
+All Users
+{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="/static/modules/datatables/datatables.min.css">
+<link rel="stylesheet" href="/static/modules/datatables/DataTables-1.10.16/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="/static/modules/datatables/Select-1.2.4/css/select.bootstrap4.min.css">
+{% endblock %}
+{% block section_lead %}
+Good people bring out good in other people.
+{% endblock %}
+
+{% block main %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h4>All Users</h4>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped" id="userTable">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th class="text-center">
+                                    #
+                                </th>
+                                <th>Name</th>
+                                <th>Role</th>
+                                <th>Email</th>
+                                <th class="nosort">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="5" align="center"> 
+                                    Initializing...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="/static/modules/datatables/datatables.min.js"></script>
+<script src="/static/modules/datatables/DataTables-1.10.16/js/dataTables.bootstrap4.min.js"></script>
+<script src="/static/modules/datatables/Select-1.2.4/js/dataTables.select.min.js"></script>
+<script src="/static/modules/jquery-ui/jquery-ui.min.js"></script>
+<script src="/static/js/page/modules-datatables.js"></script>
+<script src="/static/modules/sweetalert/sweetalert.min.js"></script>  <!-- Page Specific JS File -->
+<!-- <script src="/static/js/page/modules-sweetalert.js"></script> -->
+<script>
+
+function verifyUser(id,name){
+            swal({
+                title: 'Are you sure?',
+                text: 'You want to verify '+ name +'\'s account?',
+                icon: 'warning',
+                buttons: true,
+                dangerMode: true,
+                })
+                .then((willVerify) => {
+                if (willVerify) {
+                    $.ajax({
+                        'url': '/verify-user/'+id.toString(),
+                        'dataType': 'json',
+                        'type': 'POST',
+                        'success': function(e){
+                            if(e.flag==false){
+                                swal('Uh oh!', 'Error encountered, try again later!', 'error');
+                            }else{
+                                swal('Wooh! '+name+'\'s account has been verified!', {
+                                    icon: 'success',
+                                });
+                                $('#user'+id.toString()).removeAttr("onclick");
+                                $('#user'+id.toString()).removeAttr("style");
+                                $('#user'+id.toString()).html("Verified");
+                                $('#user'+id.toString()).removeClass("badge-primary");
+                                $('#user'+id.toString()).addClass("badge-success");
+                            }
+                        },
+                        'error': function(e){
+                            swal('Uh oh!', 'Error encountered, try again later!', 'error');
+                        }
+                    });
+                } else {
+                    swal('Account verification request revoked!');
+                }
+                });
+        }
+
+    $(document).ready(function() {
+        var userTable = $('#userTable').DataTable( {
+            ajax: {
+                url: "/fetch-all-users",
+                dataSrc: "data",
+                type: "POST"
+            },
+            'aoColumnDefs': [{
+                'bSortable': false,
+                'aTargets': ['nosort'],
+            },
+            {
+                "targets": [ 0 ],
+                "visible": false,
+                "searchable": false
+            }
+            ]
+        } );
+        $('#userTable tbody').on('click', 'tr td:not(:last-child)', function () {
+            var data = userTable.row( this ).data();
+            window.open('/user/'+data[0]);
+        } );
+    } );
+</script>
+{% endblock %}

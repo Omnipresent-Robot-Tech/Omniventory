@@ -1,0 +1,218 @@
+{% extends "layout.html" %}
+{% block title %}
+Create a Maintenance Ticket &mdash; Omniventry
+{% endblock %}
+
+{% block section_title %}
+Create a Maintenance Ticket
+{% endblock %}
+
+{% block section_lead %}
+It's a matter of neglect and poor preventive maintenance.
+{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="/static/modules/summernote/summernote-bs4.css">
+<link rel="stylesheet" href="/static/modules/select2/dist/css/select2.min.css">
+<style>
+    .thumbnail {
+        height: 100px;
+        margin: -2px 10px 10px 10px;
+    }
+
+    .img-card-footer {
+        overflow-y: scroll;
+        max-height: 500px;
+    }
+</style>
+{% endblock %}
+
+{% block main %}
+<form method="POST" enctype="multipart/form-data">
+    <div class="row">
+        <div class="col-lg-8 col-md-8 col-sm-12 col-xs-12 col-12  ">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Problem Description</h4>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label>Title</label>
+                        <input class="form-control" name="title" id="title" autofocus required>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 col-12 ">
+                            <div class="form-group">
+                                <label>Product Name</label>
+                                <select class="select2 form-control" id="product-select" name="product" data-size="3"
+                                    tabindex="1" data-live-search="true" data-style="btn-white" required>
+                                    {% for prod in products %}
+                                    <option value="{{ prod[0] }}">{{ prod[1] }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 col-12 ">
+                            <div class="form-group">
+                                <label>Item Id</label>
+                                <select class="select2 form-control" id="item-select" name="item_id" data-size="3"
+                                    tabindex="2" data-live-search="true" data-style="btn-white" disabled required>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 col-12 ">
+                            <div class="form-group">
+                                <label>Ticket Due Date</label>
+                                <input class="form-control" name="due_date" id="due_date" type="date" required>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 col-12 ">
+                            <div class="form-group">
+                                <label>Ticket Priority</label>
+                                <select class="form-control" name="priority" id="priority" required>
+                                    <option value="low">Low</option>
+                                    <option value="high">High</option>
+                                    <option value="urgent">Urgent</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Assigne To</label>
+                        <select class="select2 form-control" id="assigned_to" name="assigned_to" data-size="3"
+                            tabindex="1" data-live-search="true" data-style="btn-white" required multiple>
+                            {% for user in users %}
+                                <option value="{{ user.id }}">{{ user.fname | title if user.fname is not none else ''}} {{ user.lname | title if user.lname is not none else ''}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Short Description</label>
+                        <textarea type="text" tabindex="1" name="short_description" id="short_description" class="form-control"
+                            required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Full Description <small>(Optional)</small></label>
+                        <textarea class="summernote-product" name="description" tabindex="7" id="description"></textarea>
+                    </div>
+                    <div class="form-group float-right">
+                        <button class="btn btn-danger" type="button" id="reset" tabindex="8">Cancel</button>
+                        <button class="btn btn-primary" type="submit" tabindex="7">Create Ticket</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12 col-12 ">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Insert Images <small>(Optional)</small></h4>
+                </div>
+                <div class="card-body">
+                    <div id="image-preview" class="image-preview w-100">
+                        <label for="image-upload" id="image-label">Choose File(s)</label>
+                        <input type="file" name="images[]" id="image-upload" accept="image/*" multiple="multiple" />
+                    </div>
+                </div>
+                <div class="card-footer img-card-footer" id="img-card-footer"></div>
+            </div>
+        </div>
+    </div>
+    <input class="d-none" value={{current_user.id}} name="user" id="user" type="text" />
+</form>
+{% endblock %}
+{% block scripts %}
+<script src="/static/modules/summernote/summernote-bs4.js"></script>
+<script src="/static/modules/select2/dist/js/select2.full.min.js"></script>
+<script>
+    window.onload = function () {
+        $('#item-select, #product-select').select2({
+            placeholder: {
+                id: '-1',
+                text: 'Select an option'
+            },
+            width: '100%',
+            dropdownAutoWidth: true
+        });
+
+        $('#product-select').val('').trigger('change');
+        $('.select2-selection').addClass('border-1');
+        $('.select2-selection').css('padding', '7px 15px');
+        $('.select2-selection').css('backgroud-color', '#fdfdff');
+        $('.select2-selection').css('border-color', '#e4e6fc');
+
+        if (window.File && window.FileList && window.FileReader) {
+            var filesInput = document.getElementById("image-upload");
+            filesInput.addEventListener("change", function (event) {
+                var files = event.target.files; //FileList object
+                var output = document.getElementById("img-card-footer");
+                output.innerHTML = "";
+                for (var i = 0; i < files.length; i++) {
+                    var file = files[i];
+                    //Only pics
+                    if (!file.type.match('image'))
+                        continue;
+                    var picReader = new FileReader();
+                    picReader.addEventListener("load", function (event) {
+                        var picFile = event.target;
+                        var div = document.createElement("div");
+                        div.innerHTML = "<img class='thumbnail' src='" + picFile.result + "'" +
+                            "title='" + picReader.name + "'/>";
+                        output.insertBefore(div, null);
+                    });
+                    //Read the image
+                    picReader.readAsDataURL(file);
+                }
+            });
+        } else {
+            console.log("Your browser does not support File API");
+        }
+    }
+
+    $('#product-select').change(function () {
+        var prod_id = $(this).val();
+        if (prod_id > 0) {
+            $.getJSON("/items/" + prod_id, function (e) {
+                var sel = $("#item-select");
+                sel.empty();
+                for (var i = 0; i < e.data.length; i++) {
+                    sel.append('<option value="' + e.data[i] + '">#' + e.data[i] + '</option>');
+                }
+                $('#item-select').select2({
+                    placeholder: {
+                        id: '-1',
+                        text: 'Select an option'
+                    },
+                    width: '100%',
+                    dropdownAutoWidth: true
+                });
+                $('#item-select').val('').trigger('change');
+                $('.select2-selection').addClass('border-1');
+                $('.select2-selection').css('padding', '7px 15px');
+                $('.select2-selection').css('backgroud-color', '#fdfdff');
+                $('.select2-selection').css('border-color', '#e4e6fc');
+                if (e.data.length > 0) {
+                    sel.removeAttr('disabled');
+                } else {
+                    sel.attr('disabled', true);
+                }
+            });
+        }
+
+        $('#reset').click(function(){
+            $('#title').val('');
+            $('#short_description').val('');
+            $('#due_date').val('');
+            $('#image-upload').val('');
+            $('#img-card-footer').empty();
+            $('#description').summernote('reset');
+            $('#product-select').val('').trigger('change');
+            $('#item-select').empty();
+            $('#item-select').attr('disabled',true);
+            $('#item-select').val('').trigger('change');
+        });
+
+    });
+
+</script>
+{% endblock %}

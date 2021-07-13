@@ -1,0 +1,77 @@
+{% extends "layout.html" %}
+{% block title %}
+Profile &mdash; Omniventry
+{% endblock %}
+
+{% block section_title %}
+User Profile
+{% endblock %}
+
+{% block section_lead %}
+You don't build business, you build people and people build business.
+{% endblock %}
+
+{% block head %}
+<style>
+    .btn-phone {
+        color: #fff;
+        background-color: #3D8B37;
+        border-color: rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-phone:hover {
+        color: #fff;
+        background-color: #426F42;
+        border-color: rgba(0, 0, 0, 0.2);
+    }
+</style>
+{% endblock %}
+
+{% block main %}
+<div class="row mt-sm-4 py-auto">
+    <div class="col-6 offset-3">
+        <div class="card profile-widget">
+            <div class="profile-widget-header">
+                <img alt="image" src="/static/img/avatar/avatar-1.png" class="rounded-circle profile-widget-picture mr-2">
+                <div class="profile-widget-description ml-5">
+                    <div class="profile-widget-name">{{ user.fname | title if user.fname is not none else '' }} {{user.lname | title if user.lname is not none else ''}}
+                        <div class="text-muted d-inline font-weight-normal">
+                            <div class="slash"></div> {{ user.role | title if user.role is not none else ''}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-block" style="padding: 1.25rem;">
+                <h5 class="h5"><b>Information</b></h5>
+                <div class="row">
+                    {% if user.email!=None and user.email!='' %}
+                    <div class="col-12">
+                        <p style="font-weight: 600; margin-bottom: 0px;">Email</p>
+                        <h6 class="text-muted border-bottom" style="font-weight: 400;">{{user.email}}</h6>
+                    </div>
+                    {% endif %}
+                    {% if user.phone!=None and user.phone!='' %}
+                    <div class="col-12">
+                        <p style="font-weight: 600; margin-bottom: 0px;">Phone</p>
+                        <h6 class="text-muted border-bottom" style="font-weight: 400;">{{user.phone}}</h6>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card-footer text-center">
+                <div class="font-weight-bold mb-2">Connect {{ user.fname | title }} Via</div>
+                {% if user.email!=None and user.email!="" %}
+                <a href="mailto:{{user.email}}" class="btn btn-icon btn-primary btn-rounded mr-1">
+                    <i class="fas fa-envelope"></i>
+                </a>
+                {% endif %}
+                {% if user.phone!=None and user.phone!='' %}
+                <a href="tel:{{user.phone}}" class="btn btn-icon btn-rounded btn-phone mr-1">
+                    <i class="fas fa-phone"></i>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

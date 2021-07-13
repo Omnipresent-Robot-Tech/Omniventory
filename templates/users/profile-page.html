@@ -1,0 +1,203 @@
+{% extends "layout.html" %}
+{% block title %}
+Profile &mdash; Omniventry
+{% endblock %}
+
+{% block section_title %}
+Hi, {{current_user.fname | title if current_user.fname is not none else ''}}
+{% endblock %}
+
+{% block section_lead %}
+Change information about yourself on this page.
+{% endblock %}
+
+{% block head %}
+<style>
+    .btn-phone {
+        color:#fff;
+        background-color: #3D8B37;
+        border-color:rgba(0,0,0,0.2);
+    }
+    .btn-phone:hover {
+        color:#fff;
+        background-color: #426F42;
+        border-color:rgba(0,0,0,0.2);
+    }
+</style>
+{% endblock %}
+
+{% block main %}
+<div class="row mt-sm-4">
+    <div class="col-12 col-md-12 col-lg-5">
+        <div class="card profile-widget">
+            <div class="profile-widget-header">
+                <img alt="image" src="/static/img/avatar/avatar-1.png" class="rounded-circle profile-widget-picture">
+                <!-- <div class="profile-widget-items">
+            <div class="profile-widget-item">
+              <div class="profile-widget-item-label">Posts</div>
+              <div class="profile-widget-item-value">187</div>
+            </div>
+            <div class="profile-widget-item">
+              <div class="profile-widget-item-label">Followers</div>
+              <div class="profile-widget-item-value">6,8K</div>
+            </div>
+            <div class="profile-widget-item">
+              <div class="profile-widget-item-label">Following</div>
+              <div class="profile-widget-item-value">2,1K</div>
+            </div>
+          </div> -->
+            </div>
+            <div class="profile-widget-description">
+                <div class="profile-widget-name">{{ current_user.fname | title if current_user.fname is not none else ''}} {{current_user.lname | title if current_user.lname is not none else ''}}
+                    <div class="text-muted d-inline font-weight-normal">
+                        <div class="slash"></div> {{ current_user.role | title if current_user.role is not none else ''}}
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer text-center">
+                <div class="font-weight-bold mb-2">Connect {{ current_user.fname | title if current_user.fname is not none else ''}} Via</div>
+                {% if current_user.email!=None and current_user.email!="" %}
+                <a href="mailto:{{current_user.email}}" class="btn btn-icon btn-primary btn-rounded mr-1">
+                    <i class="fas fa-envelope"></i>
+                </a>
+                {% endif %}
+                {% if current_user.phone!=None and current_user.phone!='' %}
+                <a href="tel:{{current_user.phone}}" class="btn btn-icon btn-rounded btn-phone mr-1">
+                    <i class="fas fa-phone"></i>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-12 col-lg-7">
+        <div class="card">
+            <form method="post" class="profile-needs-validation" novalidate="" action="{{url_for('edit_profile')}}">
+                <div class="card-header">
+                    <h4>Edit Profile</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="form-group col-md-6 col-12">
+                            <label>First Name</label>
+                            <input type="text" class="form-control" value="{{current_user.fname if current_user.fname is not none else ''}}" required
+                                name="fname">
+                            <div class="invalid-feedback">
+                                Please fill in the first name
+                            </div>
+                        </div>
+                        <div class="form-group col-md-6 col-12">
+                            <label>Last Name</label>
+                            <input type="text" class="form-control" value="{{current_user.lname if current_user.lname is not none else ''}}" name="lname">
+                            <div class="invalid-feedback">
+                                Please fill in the last name
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-md-7 col-12">
+                            <label>Email</label>
+                            <input type="email" class="form-control" value="{{current_user.email if current_user.email is not none else ''}}" disabled
+                                name="email">
+                        </div>
+                        <div class="form-group col-md-5 col-12">
+                            <label>Phone</label>
+                            {% if current_user.phone!=None %}
+                            <input type="tel" class="form-control" pattern="^0[789]\d{9}$" name="phone"
+                                value="{{current_user.phone if current_user.phone is not none else ''}}">
+                            {% else %}
+                            <input type="tel" class="form-control" value="" name="phone" pattern="^0[6789]\d{9}$">
+                            {% endif %}
+                            <div class="invalid-feedback">
+                                Please enter valid 10 digit phone number and append 0 at beginning.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-12">
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" name="change_password" class="custom-control-input"
+                                    id="change_password">
+                                <label class="custom-control-label" for="change_password">Do you want to change your
+                                    password?</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-none row" id="password_div">
+                        <div class="col-md-6 col-12">
+                            <div class="form-group">
+                                <label>New Password</label>
+                                <input type="password" class="form-control" name="password" pattern=".{6,}" id="password"
+                                    class="form-control">
+                                <div class="invalid-feedback">
+                                    Please enter valid password with minimum 6 characters.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-12">
+                            <div class="form-group">
+                                <label>Confirm New Password</label>
+                                <input type="password" class="form-control" name="confirm_password"
+                                    id="confirm_password">
+                                <div class="invalid-feedback">
+                                    Please enter valid confirm password. The password and confirm password are not the
+                                    same.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- <div class="row">
+                <div class="form-group mb-0 col-12">
+                  <div class="custom-control custom-checkbox">
+                    <input type="checkbox" name="remember" class="custom-control-input" id="newsletter">
+                    <label class="custom-control-label" for="newsletter">Subscribe to newsletter</label>
+                    <div class="text-muted form-text">
+                      You will get new information about products, offers and promotions
+                    </div>
+                  </div>
+                </div>
+              </div> -->
+                </div>
+                <div class="card-footer text-right">
+                    <button class="btn btn-primary" id="save_changes">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="/static/modules/jquery-pwstrength/jquery.pwstrength.min.js"></script>
+<script>
+    $("#change_password").change(function () {
+        if (this.checked) {
+            $('#password_div').removeClass('d-none');
+            $('#password').attr('required', true);
+            $('#confirm_password').attr('required', true);
+        } else {
+            $('#password_div').addClass('d-none');
+            $('#password').removeAttr('required');
+            $('#confirm_password').removeAttr('required');
+        }
+    });
+    
+    $(".profile-needs-validation").submit(function () {
+        var form = $(this);
+        if (form[0].checkValidity() === false) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+
+        if ($("#change_password").prop('checked') && ($('#password')=='' || $('#password').val()!=$('#confirm_password').val())) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+
+        form.addClass('was-validated');
+    });
+    
+    $('#password').change(function(){
+        $('#confirm_password').attr('pattern',$(this).val().replace(/[-[\]{}()*+?.,\\^$|]/g, "\\$&"));
+    });
+
+</script>
+{% endblock %}
