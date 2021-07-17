@@ -10,9 +10,8 @@ from sqlalchemy import and_, text
 from sqlalchemy.orm import aliased
 from datetime import datetime,timezone
 import uuid
-
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:postgres@localhost:5432/omni-inventory'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:hellopassword@localhost:5432/omni'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = os.path.join(os.getcwd(),"static","media")
 app.config['MEDIA_URL'] = "/static/media"
@@ -177,9 +176,34 @@ def tickets():
 @app.route("/create/order-ticket",methods=['GET','POST'])
 @login_required
 def book_order():
+    categories = ProductCategory.query.order_by(ProductCategory.category).all()
+    product_names = Product.query.order_by(Product.name).all()
     if request.method=="POST":
-        pass
-    return render_template("tickets/create-new-order-ticket.html")
+        short_description = request.form.get('short_description')
+        category = request.form.get('category')
+        product_name = request.form.get('product-name')
+        try:
+            order = Order(short_description=short_description, category=category, product_name=product_name)
+            db.session.add(order)
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            flash(u'Error:: '+str(e),'danger')
+    return render_template("tickets/create-new-order-ticket.html", categories=categories, product_names=product_names)
+
+# api for dynamic select
+@app.route("/create/order-ticket/<category>")
+@login_required
+def get_names(category):
+    products = Product.query.filter(Product.category == category).all()
+    product_array = []
+    for prd in products:
+        prdObj = {}
+        prdObj['id'] = prd.id
+        prdObj['name'] = prd.name
+        product_array.append(prdObj)
+
+    return jsonify({'products': product_array})
 
 @app.route("/create/maintenance-ticket",methods=['POST','GET'])
 @login_required

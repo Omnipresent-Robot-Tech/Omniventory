@@ -198,3 +198,20 @@ class Replies(db.Model):
     def __repr__(self):
         """Define a way to print Replies model"""
         return '<Replies %r>' % self.id
+
+
+
+
+class Order(db.Model):
+    __tablename__ = 'order'
+
+    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    short_description = db.Column(db.Text, nullable=False)
+    category = db.Column(db.String(30), nullable=False)
+    product_name = db.Column(db.String(30), nullable=False)
+
+    def __repr__(self):
+        return '<Order %r>' % self.id
+
+
+#  Error:: (psycopg2.errors.UndefinedColumn) column "short_description" of relation "order" does not exist LINE 1: INSERT INTO "order" (short_description, category, product_na... ^ [SQL: INSERT INTO "order" (short_description, category, product_name) VALUES (%(short_description)s, %(category)s, %(product_name)s) RETURNING "order".id] [parameters: {'short_description': 'sdad', 'category': 'Battery', 'product_name': 'ASUS LX1505'}] (Background on this error at: https://sqlalche.me/e/14/f405) 
