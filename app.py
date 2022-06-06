@@ -12,7 +12,7 @@ from datetime import datetime,timezone
 import uuid
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://pminxrnegjapsi:8a1ed697ff7e2643202ea3280d3e39fc47bf294a5d701ffcd630a5cae4056cbf@ec2-52-23-40-80.compute-1.amazonaws.com:5432/d1k2bliursm654'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://pminxrnegjapsi:8a1ed697ff7e2643202ea3280d3e39fc47bf294a5d701ffcd630a5cae4056cbf@ec2-52-23-40-80.compute-1.amazonaws.com:5432/d1k2bliursm654'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = os.path.join(os.getcwd(),"static","media")
 app.config['MEDIA_URL'] = "/static/media"
