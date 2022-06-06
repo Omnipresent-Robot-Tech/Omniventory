@@ -1,0 +1,238 @@
+{% extends "layout.html" %}
+{% block title %}
+Item Allocated to Me &mdash; Omniventry
+{% endblock %}
+
+{% block section_title %}
+Items Allocated to Me
+{% endblock %}
+
+{% block section_lead %}
+The list of all the items allocated to you in past.
+{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="/static/modules/datatables/datatables.min.css">
+<link rel="stylesheet" href="/static/modules/datatables/DataTables-1.10.16/css/dataTables.bootstrap4.min.css">
+{% endblock %}
+
+{% block main%}
+<div class="row">
+    <div class="col-12">
+        <div class="card mb-0">
+            <div class="card-body">
+                <ul class="nav nav-pills" id="allocationTabList" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="all-tab" data-toggle="tab" href="#all" role="tab"
+                            aria-controls="all" aria-selected="true">All<span class="badge badge-primary">0</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="issued-tab" data-toggle="tab" role="tab" aria-controls="issued"
+                            aria-selected="true" href="#issued">Issued To You<span class="badge badge-primary">0</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="returned-tab" data-toggle="tab" href="#returned" role="tab"
+                            aria-controls="returned" aria-selected="true" href="#returned">Returned By You<span
+                                class="badge badge-primary">0</span></a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="tab-content" id="allocationTabContent">
+                <div class="tab-pane fade show active" id="all" role="tabpanel" aria-labelledby="all-tab">
+                    <div class="card-header">
+                        <h4>All Items</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped w-100" id="all-allocation-table">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Item#</th>
+                                        <th>Product Name</th>
+                                        <th>Location</th>
+                                        <th class="nosort">Issued By</th>
+                                        <th>Issued On</th>
+                                        <th>Expected Return</th>
+                                        <th>Status</th>
+                                        <!-- <th class="nosort">Action</th> -->
+                                    </tr>
+                                </thead>
+                                <tfoot>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Item#</th>
+                                        <th>Product Name</th>
+                                        <th>Location</th>
+                                        <th class="nosort">Issued By</th>
+                                        <th>Issued On</th>
+                                        <th>Expected Return</th>
+                                        <th>Status</th>
+                                        <!-- <th class="nosort">Action</th> -->
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="issued" role="tabpanel" aria-labelledby="issued-tab">
+
+                    <div class="card-header">
+                        <h4>Issued Items</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped w-100" id="issued-allocation-table">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Item#</th>
+                                        <th>Product Name</th>
+                                        <th>Location</th>
+                                        <th class="nosort">Issued By</th>
+                                        <th>Issued On</th>
+                                        <th>Expected Return</th>
+                                        <!-- <th class="nosort">Action</th> -->
+                                    </tr>
+                                </thead>
+                                <tfoot>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Item#</th>
+                                        <th>Product Name</th>
+                                        <th>Location</th>
+                                        <th class="nosort">Issued By</th>
+                                        <th>Issued On</th>
+                                        <th>Expected Return</th>
+                                        <!-- <th class="nosort">Action</th> -->
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="returned" role="tabpanel" aria-labelledby="returned-tab">
+
+                    <div class="card-header">
+                        <h4>Returned Items</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped w-100" id="returned-allocation-table">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Item#</th>
+                                        <th>Product Name</th>
+                                        <th>Location</th>
+                                        <th class="nosort">Issued By</th>
+                                        <th>Issued On</th>
+                                        <th class="nosort">Returned To</th>
+                                        <th>Returned On</th>
+                                        
+                                        <!-- <th class="nosort">Action</th> -->
+                                    </tr>
+                                </thead>
+                                <tfoot>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Item#</th>
+                                        <th>Product Name</th>
+                                        <th>Location</th>
+                                        <th class="nosort">Issued By</th>
+                                        <th>Issued On</th>
+                                        <th class="nosort">Returned To</th>
+                                        <th>Returned On</th>
+                                        <!-- <th class="nosort">Returned To</th> -->
+                                        <!-- <th class="nosort">Action</th> -->
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endblock %}
+    {% block scripts %}
+    <script src="/static/modules/datatables/datatables.min.js"></script>
+    <script src="/static/modules/datatables/DataTables-1.10.16/js/dataTables.bootstrap4.min.js"></script>
+    <script src="/static/modules/datatables/Select-1.2.4/js/dataTables.select.min.js"></script>
+    <script src="/static/modules/jquery-ui/jquery-ui.min.js"></script>
+    <script src="/static/js/page/modules-datatables.js"></script>
+    <script>
+        $(document).ready(function () {
+            var allAllocationTable = $('#all-allocation-table').DataTable({
+                ajax: {
+                    url: "/my-account/items/all",
+                    dataSrc: function(res){
+                        $('#all-tab span').html(res.data.length);
+                        return res.data;
+                    },
+                    type: "POST"
+                },
+                'aoColumnDefs': [{
+                    'bSortable': false,
+                    'aTargets': ['nosort']
+                },
+                {
+                    "targets": [0],
+                    "visible": false,
+                    "searchable": false,
+                }]
+            });
+
+            var issuedAllocationTable = $('#issued-allocation-table').DataTable({
+                ajax: {
+                    url: "/my-account/items/issued",
+                    dataSrc: function(res){
+                        $('#issued-tab span').html(res.data.length);
+                        return res.data;
+                    },
+                    type: "POST"
+                },
+                'aoColumnDefs': [{
+                    'bSortable': false,
+                    'aTargets': ['nosort']
+                },
+                {
+                    "targets": [0],
+                    "visible": false,
+                    "searchable": false,
+                }]
+            });
+
+            var returnedAllocationTable = $('#returned-allocation-table').DataTable({
+                ajax: {
+                    url: "/my-account/items/returned",
+                    dataSrc: function(res){
+                        $('#returned-tab span').html(res.data.length);
+                        return res.data;
+                    },
+                    type: "POST"
+                },
+                'aoColumnDefs': [{
+                    'bSortable': false,
+                    'aTargets': ['nosort']
+                },
+                {
+                    "targets": [0],
+                    "visible": false,
+                    "searchable": false,
+                }]
+            });
+
+            // $('#productsTable tbody').on('click', 'tr', function () {
+            //     var data = productsTable.row( this ).data();
+            //     window.location = "/product/"+data[0].toString();
+            // } );
+        });
+    </script>
+    {% endblock %}

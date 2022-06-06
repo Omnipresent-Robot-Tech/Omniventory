@@ -1,0 +1,331 @@
+{% extends "layout.html" %}
+{% block title %}
+Maintenace Ticket &mdash; Omniventry
+{% endblock %}
+
+{% block section_title %}
+Maintenace Ticket #{{ maintenance[0].id }}
+{% endblock %}
+
+{% block section_lead %}
+Dedication + Follow Up = Success
+{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="/static/modules/summernote/summernote-bs4.css">
+<link rel="stylesheet" href="/static/modules/chocolat/dist/css/chocolat.css">
+{% endblock %}
+
+{% block main %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h4>Tickets</h4>
+            </div>
+            <div class="card-body">
+                <a href="#" class="btn btn-primary btn-icon icon-left btn-lg btn-block mb-4 d-md-none"
+                    data-toggle-slide="#ticket-items">
+                    <i class="fas fa-list"></i>
+                </a>
+                <div class="tickets">
+                    <div class="ticket-items" id="ticket-items">
+                        <div class="ticket-item active">
+                            <div class="ticket-title">
+                                <h4>Maintenace Ticket</h4>
+                            </div>
+                            <div class="ticket-desc">
+                                {% if maintenance[0].closed_on==None %}
+                                <div><span class="badge badge-light text-secondary">Open <i
+                                            class="fas fa-lock-open"></i></span></div>
+                                <div class="align-self-center bullet"></div>
+                                <div class="align-self-center"><time class="timeago"
+                                        datetime="{{ maintenance[0].created_on }}">{{ maintenance[0].created_on |
+                                        datetime('%B %d, %Y') }}</time></div>
+                                {% else %}
+                                <div><span class="badge badge-light text-danger">Closed <i
+                                            class="fas fa-lock"></i></span></div>
+                                <div class="align-self-center bullet"></div>
+                                <div class="align-self-center"><time class="timeago"
+                                        datetime="{{ maintenance[0].closed_on }}">{{ maintenance[0].closed_on |
+                                        datetime('%B %d, %Y') }}</time></div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="ticket-item">
+                            <div class="ticket-title">
+                                <div class="text-muted d-flex"><small class="mr-auto">Last Status</small><span
+                                        class="text-secondary" style="cursor: pointer;" onclick="$('#ticketStatusModal').modal('show');" title="Update Status"><i
+                                            class="fas fa-pencil-alt"></i></span></div>
+                                <h6><span class="text-mutted">{{maintenance[0].status | title }}</span></h6>
+                            </div>
+                            <div class="ticket-desc">
+                                {% if maintenance[2]==None %}
+                                <div>Anonymous</div>
+                                {% else %}
+                                <div>{{maintenance[2].fname | title if maintenance[2].fname is not none else ''}}
+                                    {{maintenance[2].lname | title if maintenance[2].lname is not none else ''}}</div>
+                                {% endif %}
+                                <div class="bullet"></div>
+                                <div><time class="timeago"
+                                        datetime="{{maintenance[0].status_updated_on}}">{{maintenance[0].status_updated_on
+                                        | datetime('%B %d, %Y') }}</time></div>
+                            </div>
+                        </div>
+                        {% if maintenance[0].closed_on!=None %}
+                        <div class="ticket-item">
+                            <div class="ticket-title">
+                                <h4 class="text-danger">Ticket Closed!</h4>
+                            </div>
+                            <div class="ticket-desc">
+                                {% if maintenance[3]==None %}
+                                <div>Anonymous</div>
+                                {% else %}
+                                <div>{{maintenance[3].fname | title if maintenance[3].fname is not none else ''}}
+                                    {{maintenance[3].lname | title if maintenance[3].lname is not none else ''}}</div>
+                                {% endif %}
+                                <div class="bullet"></div>
+                                <div><time class="timeago"
+                                        datetime="{{maintenance[0].closed_on}}">{{maintenance[0].closed_on |
+                                        datetime('%B %d, %Y') }}</time></div>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="ticket-item" onclick="markAsRepaired('{{ maintenance[0].item_id }}');">
+                            <div class="ticket-title">
+                                <h4>Close This Ticket</h4>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="ticket-content">
+                        <div class="ticket-header">
+                            <div class="ticket-sender-picture img-shadow">
+                                <img src="/static/img/avatar/avatar-5.png" alt="image">
+                            </div>
+                            <div class="ticket-detail">
+                                <div class="ticket-title d-flex">
+                                    <h4 class="text-truncate mr-auto">{{ maintenance[0].title | title }}</h4>
+                                    <span class="ml-auto mr-0 text-secondary">&nbsp;| #{{ maintenance[0].item_id
+                                        }}</span>
+                                </div>
+
+                                <div class="ticket-info">
+                                    <div class="font-weight-600">{{ maintenance[1].fname | title if maintenance[1].fname
+                                        is not none else '' }} {{ maintenance[1].lname | title if maintenance[1].lname
+                                        is not none else ''}}</div>
+                                    <div class="bullet"></div>
+                                    <div class="text-primary font-weight-600"><time class="timeago"
+                                            datetime="{{ maintenance[0].created_on }}">{{ maintenance[0].created_on |
+                                            datetime('%B %d, %Y') }}</time></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="ticket-description">
+                            <p>
+                                {{ maintenance[0].short_description }}
+                            </p>
+                            <div id="ticket-description">
+                                {{ maintenance[0].description }}
+                            </div>
+                            <div class="gallery">
+                                {% for image in images %}
+                                {% if loop.index < 4 %} <div class="gallery-item" data-image="{{image.image}}"
+                                    data-title="{{image.filename}}">
+                            </div>
+                            {% elif loop.index==4 %}
+                            <div class="gallery-item gallery-more" data-image="{{image.image}}"
+                                data-title="{{image.filename}}">
+                                <div>+{{ images | length - loop.index + 1 }}</div>
+                            </div>
+                            {% else %}
+                            <div class="gallery-item d-none" data-image="{{image.image}}"
+                                data-title="{{image.filename}}">
+                                <div>+{{ images | length - loop.index + 1 }}</div>
+                            </div>
+                            {% endif %}
+                            {% endfor %}
+                        </div>
+                        <div class="ticket-divider"></div>
+                        <h4 class="h4 mb-3">Replies</h4>
+                        {% for reply in replies %}
+                        <div class="media media-comment bg-secondary shadow-sm p-3 mb-2">
+                            <figure class="avatar avatar-lg">
+                                <img alt="image" src="/static/img/avatar/avatar-1.png" class="rounded-circle"
+                                    data-toggle="tooltip"
+                                    title="{{ reply[1].fname | title if reply[1].fname is not none else '' }} {{ reply[1].lname | title if reply[1].lname is not none else '' }}">
+                            </figure>
+                            <div class="media-body p-0 pl-2">
+                                <div class="mb-2">
+                                    <a target="_blank" class="btn btn-link pb-0 mb-0" href="/user/{{reply[1].id}}">
+                                        <h5 class="h5 mb-0 pb-0">{{ reply[1].fname | title if reply[1].fname is not none
+                                            else '' }} {{ reply[1].lname | title if reply[1].lname is not none else ''
+                                            }}</h5>
+                                    </a>
+                                    <br />
+                                    <span class="pt-0 mt-0 ml-3 text-muted"><small>{{ reply[0].posted_on | datetime('%d
+                                            %b, %Y %I:%M %p') }}</small></span>
+                                </div>
+                                <p class="text-justify">
+                                    {{ reply[0].comment }}
+                                </p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        {% if maintenance[0].isclosed==False %}
+                        <div class="ticket-form">
+                            <form method="POST">
+                                <div class="form-group">
+                                    <textarea class="summernote-reply form-control" placeholder="Type a reply ..."
+                                        required name="comment"></textarea>
+                                </div>
+                                <div class="form-group text-right">
+                                    <button type="submit" class="btn btn-primary btn-lg">
+                                        Reply
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<div class="modal fade" id="ticketStatusModal" role="dialog" aria-labelledby="ticketStatusModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="ticketStatusModalLabel">Update Ticket Status</h5>
+                <button type="button" class="close" onclick="hideModal()" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="ticketStatusForm">
+                    <div class="form-group">
+                        <label>New Status</label>
+                        <input class="form-control" name="status" required type="text">
+                    </div>
+                    <input class="d-none" name="log_id" type="hidden" required value='{{maintenance[0].id}}'>
+                </form>
+            </div>
+            <div class="modal-footer form-group">
+                <button class="btn btn-primary" type="button" id="ticketStatusUpdate">Update Status</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/static/modules/summernote/summernote-bs4.js"></script>
+<script src="/static/modules/chocolat/dist/js/jquery.chocolat.min.js"></script>
+<script src="/static/js/jquery.timeago.js"></script>
+<script src="/static/modules/sweetalert/sweetalert.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('time.timeago').timeago();
+    });
+
+    function hideModal(){
+        $('div.#ticketStatusModal input#status').val('');
+        $('#ticketStatusModal').modal('hide');
+    }
+
+    $('#ticketStatusUpdate').click(function(){
+        var status = $('#status').val();
+        if (status==''){
+            swal('Invalid Argument! Please enter valid status and try again later.', 'warning')
+            return
+        }
+
+        swal({
+            title: 'Are you sure?',
+            text: 'You want to update the status maintenance ticket #{{maintenance[0].id}} ?',
+            icon: 'warning',
+            buttons: true,
+            dangerMode: true,
+        })
+            .then((willVerify) => {
+                if (willVerify) {
+                    $.ajax({
+                        'url': '/update-ticket-status/maintenance/{{maintenance[0].id}}',
+                        'dataType': 'json',
+                        'data': $('#ticketStatusForm').serialize(),
+                        'method': 'POST',
+                        'success': function (e) {
+                            if (e.flag == false) {
+                                swal('Uh oh!', 'Error encountered, try again later!', 'error');
+                            } else {
+                                swal('Wooh! status of maintenace ticket #{{maintenance[0].id}} updated successfully', {
+                                    icon: 'success',
+                                });
+                                location.reload();
+                            }
+                        },
+                        'error': function (e) {
+                            swal('Uh oh!', 'Error encountered, try again later!', 'error');
+                        }
+                    });
+                }
+            });    
+
+    });
+
+    function markAsRepaired(id) {
+
+        if (id == '' || parseInt(id) <= 0) {
+            swal('Invalid Argument!Please try again later.', 'warning');
+            return
+        }
+
+        swal({
+            title: 'Are you sure?',
+            text: 'You want to update the status Item #' + id + ' as repaired in inventory?',
+            icon: 'warning',
+            buttons: true,
+            dangerMode: true,
+        })
+            .then((willVerify) => {
+                if (willVerify) {
+                    $.ajax({
+                        'url': '/mark-as-repaired/' + id,
+                        'dataType': 'json',
+                        'method': 'POST',
+                        'success': function (e) {
+                            if (e.flag == false) {
+                                swal('Uh oh!', 'Error encountered, try again later!', 'error');
+                            } else {
+                                swal('Wooh! Item #' + id + ' marked as repaired and moved to available stock.', {
+                                    icon: 'success',
+                                });
+                                location.reload();
+                            }
+                        },
+                        'error': function (e) {
+                            swal('Uh oh!', 'Error encountered, try again later!', 'error');
+                        }
+                    });
+                }
+            });
+
+    }
+
+    $(document).ready(function () {
+
+        var description = $('#ticket-description').html();
+        $('#ticket-description').html(unescapeHTML(description));
+
+        $('.media-comment .media-body p').each(function (index) {
+            console.log(index);
+            var comment = $(this).html();
+            $(this).html(unescapeHTML(comment));
+        });
+    })
+
+</script>
+{% endblock %}

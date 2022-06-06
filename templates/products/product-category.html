@@ -1,0 +1,159 @@
+{% extends "layout.html" %}
+{% block title %}
+Product Category &mdash; Omniventry
+{% endblock %}
+
+{% block section_title %}
+Product Category
+{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="/static/modules/datatables/datatables.min.css">
+<link rel="stylesheet" href="/static/modules/datatables/DataTables-1.10.16/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="/static/modules/datatables/Select-1.2.4/css/select.bootstrap4.min.css">
+{% endblock %}
+{% block section_lead %}
+Best way to make news is to announce a new category, not a new product.
+{% endblock %}
+
+{% block main %}
+<div class="row">
+    <div class="col-md-5 col-sm-12">
+        <div class="card">
+            <div class="card-header">
+                <h4>Product Category</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" id="product_category_form">
+                    <div class="form-group">
+                        <label for="category">Category Name</label>
+                        <input id="category" type="text" class="form-control" name="category" tabindex="1" required
+                            autofocus>
+                    </div>
+                    <div class="form-group row d-none" id="edit_btn_grp">
+                        <div class="col-6">
+                            <button class="btn btn-danger btn-lg btn-block" id="cancel_btn" onclick="cancel()" tabindex="3">
+                                Cancel
+                            </button>    
+                        </div>
+                        <div class="col-6">
+                            <button type="submit" class="btn btn-success btn-lg btn-block" id="save_btn" tabindex="2">
+                                Save Changes
+                            </button>    
+                        </div>
+                    </div>
+                    <div class="form-group" id="create_btn_grp">
+                        <button type="submit" class="btn btn-primary btn-lg btn-block" id="submit_btn" tabindex="2">
+                            Create New Category
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-7 col-sm-12">
+        <div class="card">
+            <div class="card-header">
+                <h4>Product Categories</h4>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped" id="productCategoryTable">
+                        <thead>
+                            <tr>
+                                <th class="text-center">
+                                    #
+                                </th>
+                                <th>Name</th>
+                                <th class="nosort align-right" width="110">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="3" align="center">
+                                    Initializing...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/modules/datatables/datatables.min.js"></script>
+<script src="/static/modules/datatables/DataTables-1.10.16/js/dataTables.bootstrap4.min.js"></script>
+<script src="/static/modules/datatables/Select-1.2.4/js/dataTables.select.min.js"></script>
+<script src="/static/modules/jquery-ui/jquery-ui.min.js"></script>
+<script src="/static/js/page/modules-datatables.js"></script>
+<script src="/static/modules/sweetalert/sweetalert.min.js"></script>
+<script>
+    function editCategory(id,name) {
+            $('#product_category_form').attr('action','/product/category/'+id.toString());
+            $('#create_btn_grp').addClass('d-none');
+            $('#edit_btn_grp').removeClass('d-none');
+            $('#category').val(name);
+        }
+
+        function cancel(){
+            $('#product_category_form').attr('action','/product/category');
+            $('#edit_btn_grp').addClass('d-none');
+            $('#create_btn_grp').removeClass('d-none');
+            $('#category').val('');
+        }
+        
+    var datatable;
+    $(document).ready(function () {
+        datatable = $('#productCategoryTable').DataTable({
+            ajax: {
+                url: "/fetch-all-product-category",
+                dataSrc: "data",
+                type: "POST"
+            },
+            'aoColumnDefs': [{
+                'bSortable': false,
+                'aTargets': ['nosort']
+            }]
+        });
+    });
+
+    function deleteCategory(id){
+            swal({
+                title: 'Are you sure?',
+                text: 'Once deleted, you will have to create a new category to recover it again!',
+                icon: 'warning',
+                buttons: true,
+                dangerMode: true,
+            })
+            .then((willDelete) => {
+            if (willDelete) {
+                $.ajax({
+                    'url': '/product/category/'+id.toString(),
+                    'type': 'DELETE',
+                    'dataType': 'json',
+                    'success': function(e){
+                        if(e.status==true){
+                            datatable.clear();
+                            datatable.rows.add(e.data);
+                            datatable.draw(false);
+                            swal('Poof! Product category has been deleted!', {
+                                icon: 'success',
+                            });
+                        }else{
+                            swal('Uh oh!', 'Error encountered, try again later!', 'error');
+                        }
+                    },
+                    'error': function(e){
+                                swal('Uh oh!', 'Error encountered, try again later!', 'error');
+                            }
+                })
+                } else {
+                swal('Product category is safe!');
+                }
+            });
+        }
+</script>
+{% endblock %}
