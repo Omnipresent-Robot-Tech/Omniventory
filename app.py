@@ -16,7 +16,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://pttikpvvodylzf:95b84b2bda955
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = os.path.join(os.getcwd(),"static","media")
 app.config['MEDIA_URL'] = "/static/media"
-app.secret_key = b'_5#y2L"F4Q8z\n0xom]/'
+app.secret_key = b'asgdahd12312xcd'
 db.init_app(app)
 login_manager = LoginManager()
 login_manager.login_view = 'login'
