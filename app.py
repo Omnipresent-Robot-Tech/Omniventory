@@ -122,8 +122,11 @@ def signup():
         flash(u'Email already registered. Try again with different email address.','danger')
         return redirect('/auth/login')
     user = Users(fname=firstname.capitalize(),lname=lastname.capitalize(),email=email,password=generate_password_hash(password),role=role)
+    print('Before add')
     db.session.add(user)
+    print('After add')
     db.session.commit()
+    print('After Commit')
     flash(u'Credentials created successfully! Please ask the admin to verify your account.','success')
     return redirect('/auth/login')
 
